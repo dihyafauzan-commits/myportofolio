@@ -205,3 +205,20 @@ h1, .brand {
         justify-content: flex-start;
     }
 }
+
+.about-me {
+    margin-top: -40px;     
+    padding-bottom: 40px; 
+    position: relative;    
+    z-index: 2;            
+    background-color: #ffffff; /* Atur warna putih atau sesuaikan dengan tema web Anda */
+    padding-top: 20px;         /* Berikan sedikit ruang di dalam kotak atas agar teks tidak mepet garis */
+}
+
+.about-me h2 {
+    margin-bottom: 15px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+
+
