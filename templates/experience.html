@@ -32,7 +32,10 @@
                         <span class="experience-category">
                             {{ experience.get_category_display }}
                         </span>
+                        <!-- UBAH DI SINI: Gunakan variabel Django agar judul dinamis -->
                         <h2>{{ experience.title }}</h2>
+            
+                        <!-- UBAH DI SINI: Gunakan variabel Django agar deskripsi dinamis -->
                         <p class="experience-description">
                             {{ experience.description }}
                         </p>
@@ -49,6 +52,7 @@
                     </p>
                 {% endfor %}
             </div>
+
         </div>
     </section>
 </main>
