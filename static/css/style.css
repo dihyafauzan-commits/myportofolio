@@ -274,3 +274,78 @@ h1, .brand {
     font-weight: 600;
 }
 
+.certificate-section {
+    padding: 4rem 0;
+    border-top: 1px solid var(--line);
+}
+
+.section-kicker {
+    color: var(--accent-dark);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.certificate-section h1 {
+    margin: 0.4rem 0 1.5rem;
+    font-size: 2rem;
+}
+
+.certificate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.certificate-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.certificate-category {
+    color: var(--accent-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.certificate-card h2 {
+    margin: 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.certificate-description,
+.empty-state {
+    color: var(--text-muted);
+}
+
+.certificate-status {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.certificate-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.btn-verify {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+.btn-verify:hover {
+    background-color: #0056b3;
+}

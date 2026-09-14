@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Experience
+from mainApplication.models import Experience, Project
 
 
 class MainTest(TestCase):
@@ -56,3 +56,42 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "Completed")
         self.assertNotContains(response, "Ongoing")
+
+    class ProjectPortfolioTest(TestCase):
+        def setUp(self):
+        # Membuat data tiruan untuk digunakan pada skenario ke-2
+            self.project = Project.objects.create(
+                title="E-Commerce Web App",
+                description="Built a full-stack online store system.",
+                repository_url="https://github.com",
+                date_completed="2026-01-01"
+            )
+
+    # Skenario 1: URL dapat diakses (status 200) dan menggunakan template yang benar
+        def test_project_page_url_is_accessible_and_uses_correct_template(self):
+            response = self.client.get(reverse("main:projects_page"))
+        
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, "portfolio_projects.html")
+
+    # Skenario 2: Data model muncul di HTML response ketika data TIDAK kosong
+        def test_project_data_appears_in_html_when_not_empty(self):
+            response = self.client.get(reverse("main:projects_page"))
+        
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, self.project.title)
+            self.assertContains(response, self.project.description)
+            self.assertContains(response, self.project.repository_url)
+        # Memastikan pesan kosong tidak ikut muncul saat data ada
+            self.assertNotContains(response, "Belum ada proyek portofolio yang ditambahkan.")
+
+    # Skenario 3: Pesan kosong (empty state) muncul di HTML ketika data kosong
+        def test_project_empty_message_appears_when_data_is_empty(self):
+        # Hapus semua data proyek agar database kosong
+            Project.objects.all().delete()
+        
+            response = self.client.get(reverse("main:projects_page"))
+        
+            self.assertEqual(response.status_code, 200)
+        # Memastikan pesan empty state yang sesuai muncul di template
+            self.assertContains(response, "Belum ada proyek portofolio yang ditambahkan.")
