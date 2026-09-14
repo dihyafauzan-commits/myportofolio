@@ -1,4 +1,5 @@
-Django
+Django>=50,<6.2
+Pillow>=10.0.0
 gunicorn
 whitenoise
 psycopg2-binary
