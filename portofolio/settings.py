@@ -166,3 +166,5 @@ MAILERS = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CSRF_TRUSTED_ORIGINS = ["https://dihya-fauzan-myportofolio.pws.cs.ui.ac.id/"]
