@@ -1,6 +1,10 @@
+from django.forms import ModelForm, TextInput, Textarea, URLInput
+
+from .models import Project
+
 class ProjectForm(ModelForm):
     class Meta:
-        model = ProjectT3
+        model = Project
         fields = [
             "title",
             "description",

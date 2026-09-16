@@ -36,25 +36,10 @@ class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    repository_url = models.URLField(blank=True, null=True)
-    date_completed = models.DateField()
-
-    image = models.ImageField(upload_to='certificate/', blank=True, null=True)
-
-    repository_url = models.URLField(blank=True, null=True)
-
-    credential_issuer = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.title
-
-class ProjectT3(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    tech_stack = models.CharField(max_length=255)
+    tech_stack = models.CharField(max_length=255, blank=True, null=True)
     project_url = models.URLField(blank=True)
-    project_image_url = models.URLField(blank=True, max_length=500)
-
+    project_image_url = models.URLField(blank=True, null=True, max_length=500)
+    image = models.ImageField(upload_to='projects/', blank=True, null=True)
+    
     def __str__(self):
         return self.title

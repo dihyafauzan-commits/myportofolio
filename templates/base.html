@@ -17,60 +17,13 @@
             <nav>
                 <a href="{% url 'main:show_main' %}">Profile</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_projects' %}">Certificate</a>
+                <a href="{% url 'main:create_project' %}">AddProjects</a>
+                <a href="{% url 'main:show_projects' %}">MyProjects</a>
             </nav>
         </div>
     </header>
+    
     {% block content %} {% endblock content %}
-
-    {% extends 'base.html' %}
-    {% block content %}
-
-    <main>
-        <section class="hero" id="profile">
-            <div class="container hero-grid">
-                <div class="hero-identity">
-                    <p class="hero-kicker">Computer Science &middot; Universitas Indonesia</p>
-                    <h1>Dihya Fauzan Haryadi</h1>
-                </div>
-                <div class="hero-photo">
-                    <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/burhan.png" alt="Photo of Dihya">
-                </div>
-                <div class="hero-details">
-                    <p class="bio">I'm an International student currently majoring in Computer Science.</p>
-                    <dl class="meta-list">
-                        <div class="meta-row">
-                            <dt>NPM</dt>
-                            <dd>2506637003</dd>
-                        </div>
-                        <div class="meta-row">
-                            <dt>Program</dt>
-                            <dd>S1 - Ilmu Komputer KKI 2025</dd>
-                        </div>
-                    </dl>
-                    <div class="social-links">
-                        <a href="https://github.com/dihyafauzan-commits" class="social-link">GitHub</a>
-                        <a href="https://www.linkedin.com/in/dihya-fauzan-haryadi?utm_source=share_via&utm_content=profile&utm_medium=member_android" class="social-link">LinkedIn</a>
-                        <a href="mailto:dihya.fauzan@ui.ac.id" class="social-link">Email</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="about-me" id="about-me">
-            <div class="container">
-                <h2>About Me
-                </h2>
-                <p>
-                    Hello there! I am a Student at the University of Indonesia currently working on a few project such as creating my profile website and organization as a side.
-                    I am proficient in coding using Java and Python language, and i am currently learning how to use a game engine such as Unreal engine.
-                    As for non-Computer science related skill i am proficient in many hard skills especially in survival skill such as rappeling, knife throwing, and tent making due to my background as a member of the Student Regiment "Wira Makara" organization in University of Indonesia.
-                </p>
-            </div>
-        </section>
-    </main>
-
-    {% endblock content %}
 
     <footer class="site-footer">
         <div class="container">
