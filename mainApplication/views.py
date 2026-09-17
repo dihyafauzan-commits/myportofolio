@@ -9,7 +9,7 @@ from .forms import ProjectForm
 
 def show_main(request):
     context = {
-        "name": "Dihya",
+        "name": "Dihya Fauzan Haryadi",
         "npm": "2506637003",
         "study_program": "S1 Ilmu Komputer KKI",
         "bio": (
@@ -37,6 +37,7 @@ def create_project(request):
     context = {
         "name": "Dihya Fauzan Haryadi",
         "form": form,
+        "is_update": False,
     }
     return render(request, "projects_form.html", context)
 
@@ -51,7 +52,7 @@ def show_projects(request):
     title_query = request.GET.get("title", "").strip()
 
     context = {
-        "name": "Burhan",
+        "name": "Dihya Fauzan Haryadi",
         "project_list": projects,
         "title_query": title_query,
     }
@@ -76,3 +77,21 @@ def delete_project(request, project_id):
         return redirect("main:show_projects")
 
     return redirect("main:show_projects")
+
+def update_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    form = ProjectForm(request.POST or None, instance=project)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Data proyek berhasil diperbarui!")
+        return redirect("main:show_projects")
+
+    context = {
+        "name": "Dihya Fauzan Haryadi",
+        "form": form,
+        "project": project,
+        "is_update": True,
+    }
+
+    return render(request, "projects_form.html", context)

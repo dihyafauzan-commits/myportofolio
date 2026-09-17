@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container form-container">
+    <h2>Tambah Proyek/Sertifikat Baru</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Simpan Data Proyek</button>
+        <a href="{% url 'main:show_projects' %}" class="btn btn-secondary">Batal</a>
+    </form>
+</div>
+{% endblock content %}

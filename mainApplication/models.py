@@ -37,9 +37,11 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     tech_stack = models.CharField(max_length=255, blank=True, null=True)
-    project_url = models.URLField(blank=True)
+    project_url = models.URLField(blank=True, null=True)
     project_image_url = models.URLField(blank=True, null=True, max_length=500)
     image = models.ImageField(upload_to='projects/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.title
