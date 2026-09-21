@@ -29,3 +29,12 @@ migrate would then execute those plans, it would read the instruction files insi
 As an example, in my program inside models.py i wrote "score = models.IntegerField(blank=True, null=True)" which i needed to run makemigrations so Django could detect the change and write a file to plan for migrate, and then after i run migrate, Django now can create a column titled score inside the database table. Withouse both of these action, the aplication would experience OperationalError when trying to store the scores data.
 
 AI disclosure: I use Gemini AI to help with editing the new page titled "certificate" where it would showcase pictures of my real life certificates. By copying the template on tutorial 2, i make some edit to fit my picture for this page such as adding the feature to add and show the image on the page and in here is where i use the AI to help me tackle some mistakes and errors. And also when opening the site through PWS there are some troubleshooting needed to be done since the application i created used a python app called Pillow and Gemini gave me some tips and the method so that the app can run on PWS.
+
+## Assignment 3
+1.
+
+2.
+
+3.
+
+AI disclosure
