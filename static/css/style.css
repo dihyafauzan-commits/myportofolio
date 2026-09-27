@@ -575,3 +575,29 @@ h1, .brand {
         text-align: center;
     }
 }
+
+.star-form {
+    display: inline;
+}
+
+.button-star {
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button-star.is-starred {
+    background-color: #ffc107; /* Warna kuning emas saat sudah di-star */
+    color: #000;
+    border-color: #e0a800;
+}
+
+.star-count {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 0.8rem;
+}

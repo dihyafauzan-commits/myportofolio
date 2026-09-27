@@ -1,0 +1,11 @@
+<form method="post" action="{% url 'main:toggle_star' project.id %}" class="star-form" style="display: inline-block;">
+    {% csrf_token %}
+    <button type="submit"
+            class="button button-star{% if user in project.starred_by.all %} is-starred{% endif %}"
+            style="background-color: #ffc107 !important; color: #222 !important; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer;"
+            title="{% if project.starred_by.all %}Starred by {{ project.starred_by.all|join:', ' }}{% else %}Be the first to star{% endif %}">
+        <span aria-hidden="true">★</span>
+        {% if user in project.starred_by.all %}Unstar{% else %}Star{% endif %}
+        <span class="star-count">{{ project.starred_by.count }}</span>
+    </button>
+</form>

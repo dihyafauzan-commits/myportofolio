@@ -1,5 +1,4 @@
 from django.forms import ModelForm, TextInput, Textarea, URLInput
-
 from .models import Project
 
 class ProjectForm(ModelForm):
