@@ -43,9 +43,11 @@ class Project(models.Model):
     image = models.ImageField(upload_to='projects/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    starred_by = models.ManyToManyField(
-        User, related_name="starred_projects", blank=True
-    )
+    starred_by = models.ManyToManyField(User, related_name="starred_projects", blank=True)
+
+    @property
+    def total_stars(self):
+        return self.starred_by.count()
     
     def __str__(self):
         return self.title

@@ -45,7 +45,7 @@
                                         <a href="{{ project.project_url }}" class="button">Lihat Project</a>
                                     {% endif %}
 
-                                    {% if user.is_superuser %}
+                                    {% if user.is_superuser or "Editor" in user.groups.all|yesno:"Editor," %}
                                     <a href="{% url 'main:update_project' project.id %}" class="button button-edit" style="background-color: #f0a500; color: white;">
                                         Edit
                                     </a>

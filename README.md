@@ -38,3 +38,6 @@ AI disclosure: I use Gemini AI to help with editing the new page titled "certifi
 3.
 
 AI disclosure
+
+## Assignment 4
+AI disclosure: I use Gemini AI , to assist me with the Role management & access control checklist. Since in the assignment it doesn't tell exactly how to create the group through the Django admin, i ask Gemini on how to create it, which i later discover by running the server and add /admin next to the main url.

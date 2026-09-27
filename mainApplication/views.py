@@ -4,13 +4,12 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.shortcuts import redirect, render
 import datetime
 from django.contrib.auth.decorators import login_required  
 from django.core.exceptions import PermissionDenied
 
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseNotAllowed
 from django.views.decorators.http import require_POST
 
 from .models import Experience, Project
@@ -43,7 +42,7 @@ def create_project(request):
     form = ProjectForm(request.POST or None)
 
     if not request.user.is_superuser:
-        raise PermissionDenied
+        return HttpResponseForbidden("<h1>403 Forbidden</h1><p>Anda tidak memiliki akses untuk menambah data.</p>")
 
     form = ProjectForm(request.POST or None)
 
@@ -69,6 +68,12 @@ def show_projects(request):
     projects = [project.object for project in projects]
     title_query = request.GET.get("title", "").strip()
 
+    if title_query:
+        projects = [
+            project for project in projects 
+            if title_query.lower() in project.title.lower()
+        ]
+
     context = {
         "name": "Dihya Fauzan Haryadi",
         "project_list": projects,
@@ -91,9 +96,7 @@ def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     if not request.user.is_superuser:
-        raise PermissionDenied
-
-    form = ProjectForm(request.POST or None)
+        return HttpResponseForbidden("<h1>403 Forbidden</h1><p>Anda tidak memiliki akses untuk menghapus data.</p>")
 
     if request.method == "POST":
         project.delete()
@@ -102,9 +105,13 @@ def delete_project(request, project_id):
 
     return redirect("main:show_projects")
 
+@login_required(login_url="/login/")
 def update_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     form = ProjectForm(request.POST or None, instance=project)
+
+    if not (request.user.is_superuser or is_editor(request.user)):
+        return HttpResponseForbidden("<h1>403 Forbidden</h1><p>Anda tidak memiliki akses untuk mengubah data.</p>")
 
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -160,11 +167,62 @@ def logout_user(request):
 @require_POST
 def toggle_star(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user = request.user
 
-    if request.user in project.starred_by.all():
-        project.starred_by.remove(request.user)
+    if project.starred_by.filter(id=user.id).exists():
+        project.starred_by.remove(user)
     else:
-        project.starred_by.add(request.user)
+        project.starred_by.add(user)
 
     return redirect("main:show_projects")
 
+def is_editor(user):
+    return user.groups.filter(name='Editor').exists()
+
+def project_list(request):
+    projects = Project.objects.all()
+    return render(request, 'mainApplication/project.html', {'projects': projects})
+
+@login_required
+def project_create(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Anda tidak memiliki akses untuk membuat data.")
+    
+    # Logika form submission di sini
+    return render(request, 'mainApplication/project_form.html')
+
+@login_required
+def project_update(request, pk):
+    if not (request.user.is_superuser or is_editor(request.user)):
+        return HttpResponseForbidden("Anda tidak memiliki akses untuk mengubah data.")
+    
+    project = get_object_or_404(Project, pk=pk)
+    # Logika form update di sini
+    return render(request, 'mainApplication/project_form.html', {'project': project})
+
+@login_required
+def project_delete(request, pk):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Anda tidak memiliki akses untuk menghapus data.")
+    
+    project = get_object_or_404(Project, pk=pk)
+    if request.method == 'POST':
+        project.delete()
+        return redirect('project_list')
+    return render(request, 'mainApplication/project_confirm_delete.html', {'project': project})
+
+def project_json_endpoint(request):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['GET'], "Metode tidak diizinkan")
+    projects = Project.objects.all()
+    data = []
+    
+    for p in projects:
+        data.append({
+            'id': p.id,
+            'title': p.title,
+            'description': p.description,
+            'total_stars': p.total_stars(),
+        })
+        
+    return JsonResponse(data, safe=False)
