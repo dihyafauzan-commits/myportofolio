@@ -41,3 +41,19 @@ AI disclosure
 
 ## Assignment 4
 AI disclosure: I use Gemini AI , to assist me with the Role management & access control checklist. Since in the assignment it doesn't tell exactly how to create the group through the Django admin, i ask Gemini on how to create it, which i later discover by running the server and add /admin next to the main url.
+
+## Assignment 5
+1. Debouncing is a program optimalization technique that delays a function execution until the user stops an activity for a few milisecond. While using AJAX, everytime the user presses a keyboard button, JavaScript will automatically send a request to the server, which if there were to be a hundred or even thousands of users will cause a crash or slow down the Django server. Hence the debouncing technique is used to prevent leaked performance due to many unnecessary AJAX request. 
+
+2. The await function is a function that is used to momentarily stopped JavaScript's code execution until the next asynchronous process, such as retrieving data from the server using fetch() is done and then returning a valid response.
+
+    If the await function were not to be used, it will cause an
+undefined/promise pending error due to the fetch() needed time to fetch the data from the server and then returning with the data, and it will also cause the application to get jammed, because the variable that's supposed to contain the JSON data from the server only to be given a "Promise { <pending> }" object, that'll eventualy lead it to crash.
+
+3. Cross-Site Scripting is a type of cyber attack which the perpetrator manage to sneak in a dangerous scripted code inside the web application. These script will then be automatically executed inside the browser of another user that opened the web.
+
+    AJAX/JavaScript is more vulnerable to Cross-Site Scripting attack
+due to it not having a built in security system as high leveled as Django. When printing a variable directly on the HTML using the syntax {{ project.title }}, Django would automatically change a specific character such as "<" into "&lt;" and ">" into "&gt;". The browser will see it as an ordinary text, and not an order.
+
+    While AJAX/JavaScript use the innerHTML directly. The innerHTML
+property will tell the browser to execute a text program as a real HTML code. If the data from the JSON contains the tag "<img>" with an error function "onerror="dangerous_script"", the browser will execute the attack without knowing what it had just done.

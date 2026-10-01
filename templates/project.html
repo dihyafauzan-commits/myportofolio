@@ -67,7 +67,7 @@
     
     <script>
     // Configuration
-    const BASE_PROJECTS_ENDPOINT = "{% url 'main:get_projects_json' %}";
+        const BASE_PROJECTS_ENDPOINT = "{% url 'main:get_projects_json' %}";
     const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
     let projectsAbortController;
 
@@ -89,7 +89,7 @@
         gridContainer.classList.toggle('hide', !showGrid);
     }
 
-        // Convert special HTML characters into entities so they display as text
+    // Convert special HTML characters into entities so they display as text (FIXED SIGN-OFF BUG)
     function escapeHtml(value) {
         return String(value ?? '')
             .replaceAll('&', '&amp;')
@@ -115,7 +115,98 @@
         return cookieValue;
     }
 
-    // Build a project card element
+    document.addEventListener("DOMContentLoaded", () => {
+        // Tangkap elemen DOM di dalam lingkup DOMContentLoaded
+        const searchInput = document.getElementById("search-input");
+        const searchForm = document.getElementById("project-search-form");
+    
+        // 1. Logika Debouncing Input Pencarian (FIXED: Menggunakan .trim())
+        let debounceTimer;
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                clearTimeout(debounceTimer);
+                // Request AJAX baru akan ditembak HANYA setelah pengguna berhenti mengetik selama 400ms
+                debounceTimer = setTimeout(() => {
+                    fetchProjects(searchInput.value.trim());
+                }, SEARCH_DEBOUNCE_DELAY); 
+            });
+        }
+
+        // Mencegah form pencarian melakukan submit halaman konvensional
+        if (searchForm) {
+            searchForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                fetchProjects(searchInput.value.trim());
+            });
+        }
+
+        // 2. Logika Submit Formulir Tambah Data via AJAX Modal Popover + Integrasi Toast
+        const addProjectForm = document.getElementById("add-project-form");
+        const addProjectModal = document.getElementById("add-project-modal");
+
+        if (addProjectForm) {
+            addProjectForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const formData = new FormData(addProjectForm);
+                const actionUrl = addProjectForm.getAttribute("action");
+
+                try {
+                    const response = await fetch(actionUrl, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": getCsrfToken(),
+                            "Accept": "application/json"
+                        }
+                    });
+
+                    // 🟢 Status 201: Sukses Menambahkan Data Proyek
+                    if (response.status === 201) {
+                        const result = await response.json();
+                        addProjectForm.reset(); // Kosongkan field form otomatis
+
+                        // Tutup modal bawaan Popover API
+                        if (addProjectModal && addProjectModal.matches(':popover-open')) {
+                            addProjectModal.hidePopover();
+                        }
+
+                        // Picu Toast Sukses warna hijau dari toast.js
+                        if (typeof showToast === "function") {
+                            showToast("Sukses", result.message || "Project added successfully!", "success");
+                        }
+
+                        // Segarkan list grid data tanpa refresh halaman web
+                        fetchProjects(searchInput ? searchInput.value.trim() : "");
+                    } 
+                    // 🔴 Status 400/403: Gagal Validasi Server / Akses Ditolak
+                    else if (response.status === 400 || response.status === 403) {
+                        const errorData = await response.json();
+                        let msg = errorData.error || "Gagal memproses data.";
+                        
+                        // Urai error bawaan ModelForm Django jika ada
+                        if (errorData.errors) {
+                            msg = Object.values(errorData.errors).flat().join(", ");
+                        }
+
+                        // Picu Toast Error warna merah dari toast.js (Modal tetap terbuka)
+                        if (typeof showToast === "function") {
+                            showToast("Error", msg, "error");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Form AJAX Submit Error:", error);
+                    if (typeof showToast === "function") {
+                        showToast("System Error", "Gagal mengirim data ke server. Periksa koneksi Anda.", "error");
+                    }
+                }
+            });
+        }
+        
+        // Pemuatan data skeleton pertama kali saat halaman berhasil dibuka penuh
+        fetchProjects();
+    });
+//
+        // Build a project card element
     function buildProjectCardElement(item) {
         const project = item.fields;
         const projectId = item.pk;
@@ -123,11 +214,11 @@
         const articleElement = document.createElement('article');
         articleElement.className = 'experience-card';
 
-        const imageHtml = project.project_image_url 
-            ? `<img src="${escapeHtml(project.project_image_url)}" alt="Image of ${project.title}" class="project-image">`
+        const imageHtml = project.project_image_url
+            ? `<img src="${escapeHtml(project.project_image_url)}" alt="Image of ${escapeHtml(project.title)}" class="project-image">`
             : '';
 
-        const urlHtml = project.project_url 
+        const urlHtml = project.project_url
             ? `<a href="${escapeHtml(project.project_url)}" class="button">View Project</a>`
             : '';
 
@@ -137,9 +228,9 @@
         const starUrl = "{% url 'main:toggle_star' '00000000-0000-0000-0000-000000000000' %}"
             .replace('00000000-0000-0000-0000-000000000000', projectId);
 
-        const deleteHtml = IS_SUPERUSER 
+        const deleteHtml = IS_SUPERUSER
             ? `<form method="post" action="${deleteUrl}" style="display:inline;">
-                {% csrf_token %}
+                <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrfToken()}">
                 <button type="submit" class="button button-danger" onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
             </form>`
             : '';
@@ -159,10 +250,10 @@
             <div class="project-card-actions">
                 <div class="project-actions">
                     ${urlHtml}
-                    
+
                     <form method="post" action="${starUrl}" class="star-form">
                         <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrfToken()}">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="button button-star${isStarredClass}"
                                 title="${starTitle}">
                             <span aria-hidden="true">★</span>
@@ -187,9 +278,9 @@
 
         try {
             displayPageSection({ showLoading: true });
-            
+
             const url = searchQuery ? `${BASE_PROJECTS_ENDPOINT}?title=${encodeURIComponent(searchQuery)}` : BASE_PROJECTS_ENDPOINT;
-            
+
             const response = await fetch(url, {
                 headers: { 'Accept': 'application/json' },
                 signal: projectsAbortController.signal,
@@ -217,85 +308,82 @@
 
     // Search form event handler
     function searchProjects() {
-        fetchProjects(searchInput.value.trim());
+        fetchProjects(searchInput && searchInput.value ? searchInput.value.trim() : "");
     }
 
-    searchInput.addEventListener("input", function() {
-        clearTimeout(searchDebounceTimer);
+    document.addEventListener("DOMContentLoaded", () => {
+        const addProjectModal = document.getElementById("add-project-modal");
+        const projectForm = document.getElementById('add-project-form'); // Disesuaikan dengan ID HTML form modal kamu
 
-        searchDebounceTimer = setTimeout(function() {
-            searchProjects();
-        }, SEARCH_DEBOUNCE_DELAY);
-    });
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = setTimeout(() => {
+                    searchProjects();
+                }, SEARCH_DEBOUNCE_DELAY);
+            });
+        }
 
-    searchForm.addEventListener("submit", function(event) {
-        event.preventDefault();
-        clearTimeout(searchDebounceTimer);
-        searchProjects();
-    });
+        if (searchForm) {
+            searchForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+                clearTimeout(searchDebounceTimer);
+                searchProjects();
+            });
+        }
 
-    function closeProjectModal() {
-        document.getElementById("add-project-modal").hidePopover();
-    }
+        function closeProjectModal() {
+            if (addProjectModal && typeof addProjectModal.hidePopover === 'function') {
+                addProjectModal.hidePopover();
+            }
+        }
 
-    const CREATE_PROJECT_ENDPOINT = "{% url 'main:create_project_ajax' %}";
-    const projectForm = document.getElementById('project-form');
+        async function addProject(event) {
+            event.preventDefault();
 
-    // Read a cookie value, used to get the CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+            if (!projectForm) return;
+
+            const submitButton = projectForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            try {
+                // Menggunakan endpoint URL add_project_ajax yang valid dari view kamu
+                const response = await fetch("{% url 'main:add_project_ajax' %}", {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCsrfToken() },
+                    body: new FormData(projectForm),
+                });
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok || response.status === 201) {
+                    projectForm.reset();
+                    closeProjectModal();
+                    showToast('Success', result.message || 'New project added successfully!', 'success');
+                    fetchProjects(searchInput && searchInput.value ? searchInput.value.trim() : "");
+                } else {
+                    // Penyesuaian ekstraksi pesan error validasi ModelForm Django gundal
+                    const errorMessages = result.errors
+                        ? Object.values(result.errors).flat().map(error => typeof error === 'object' ? error.message : error)
+                        : [result.error || result.message || `Something went wrong (status ${response.status}).`];
+                    showToast('Failed to add project', errorMessages.join(' '), 'error');
+                }
+            } catch (error) {
+                console.error('Error adding project:', error);
+                showToast('Failed to add project', 'Could not reach the server. Please try again.', 'error');
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
                 }
             }
         }
-        return cookieValue;
-    }
 
-    // Send the form data to the server
-    async function addProject(event) {
-        event.preventDefault();
-
-        const submitButton = projectForm.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-
-        try {
-            const response = await fetch(CREATE_PROJECT_ENDPOINT, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': getCookie('csrftoken') },
-                body: new FormData(projectForm),
-            });
-            const result = await response.json().catch(() => ({}));
-
-            if (response.ok) {
-                projectForm.reset();
-                closeProjectModal();
-                showToast('Success', 'New project added successfully!', 'success');
-                fetchProjects(searchInput.value.trim());
-            } else {
-                const errorMessages = result.errors
-                    ? Object.values(result.errors).flat().map(error => error.message)
-                    : [result.message || `Something went wrong (status ${response.status}).`];
-                showToast('Failed to add project', errorMessages.join(' '), 'error');
-            }
-        } catch (error) {
-            console.error('Error adding project:', error);
-            showToast('Failed to add project', 'Could not reach the server. Please try again.', 'error');
-        } finally {
-            submitButton.disabled = false;
+        if (projectForm) {
+            projectForm.addEventListener('submit', addProject);
         }
-    }
 
-    if (projectForm) {
-        projectForm.addEventListener('submit', addProject);
-    }
-
-    // Start the application
-    fetchProjects(searchInput.value.trim());
+        fetchProjects(searchInput && searchInput.value ? searchInput.value.trim() : "");
+    });
     </script>
 {% endblock content %}

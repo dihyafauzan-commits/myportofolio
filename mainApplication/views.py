@@ -70,7 +70,7 @@ def show_projects(request):
 
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.all()
+    projects = Project.objects.prefetch_related('starred_by').all()
 
     if title_query:
         projects = projects.filter(title__icontains=title_query)
@@ -84,6 +84,7 @@ def get_projects_json(request):
         data.append({
             "pk": str(project.id),
             "fields": {
+                "id": project.id,
                 "title": project.title,
                 "description": project.description,
                 "tech_stack": project.tech_stack,
@@ -199,7 +200,7 @@ def project_create(request):
 
 @login_required
 def project_update(request, pk):
-    if not (request.user.is_superuser or is_editor(request.user)):
+    if not (request.user.is_superuser or (request.user)):
         return HttpResponseForbidden("Anda tidak memiliki akses untuk mengubah data.")
     
     project = get_object_or_404(Project, pk=pk)
@@ -250,3 +251,28 @@ def create_project_ajax(request):
         )
 
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+@login_required
+@require_POST
+def add_project_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"error": "Anda tidak memiliki hak akses untuk menambah proyek."}, 
+            status=403
+        )
+
+    form = ProjectForm(request.POST)
+    if form.is_valid():
+        project = form.save()
+        
+        messages.success(request, "Project added successfully!")
+        
+        return JsonResponse({
+            "message": "Proyek berhasil ditambahkan!",
+            "project": {
+                "id": project.id,
+                "title": project.title
+            }
+        }, status=201)
+    
+    return JsonResponse({"errors": form.errors}, status=400)
