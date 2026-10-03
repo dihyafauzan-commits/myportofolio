@@ -139,73 +139,11 @@
                 fetchProjects(searchInput.value.trim());
             });
         }
-
-        // 2. Logika Submit Formulir Tambah Data via AJAX Modal Popover + Integrasi Toast
-        const addProjectForm = document.getElementById("add-project-form");
-        const addProjectModal = document.getElementById("add-project-modal");
-
-        if (addProjectForm) {
-            addProjectForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const formData = new FormData(addProjectForm);
-                const actionUrl = addProjectForm.getAttribute("action");
-
-                try {
-                    const response = await fetch(actionUrl, {
-                        method: "POST",
-                        body: formData,
-                        headers: {
-                            "X-CSRFToken": getCsrfToken(),
-                            "Accept": "application/json"
-                        }
-                    });
-
-                    // 🟢 Status 201: Sukses Menambahkan Data Proyek
-                    if (response.status === 201) {
-                        const result = await response.json();
-                        addProjectForm.reset(); // Kosongkan field form otomatis
-
-                        // Tutup modal bawaan Popover API
-                        if (addProjectModal && addProjectModal.matches(':popover-open')) {
-                            addProjectModal.hidePopover();
-                        }
-
-                        // Picu Toast Sukses warna hijau dari toast.js
-                        if (typeof showToast === "function") {
-                            showToast("Sukses", result.message || "Project added successfully!", "success");
-                        }
-
-                        // Segarkan list grid data tanpa refresh halaman web
-                        fetchProjects(searchInput ? searchInput.value.trim() : "");
-                    } 
-                    // 🔴 Status 400/403: Gagal Validasi Server / Akses Ditolak
-                    else if (response.status === 400 || response.status === 403) {
-                        const errorData = await response.json();
-                        let msg = errorData.error || "Gagal memproses data.";
-                        
-                        // Urai error bawaan ModelForm Django jika ada
-                        if (errorData.errors) {
-                            msg = Object.values(errorData.errors).flat().join(", ");
-                        }
-
-                        // Picu Toast Error warna merah dari toast.js (Modal tetap terbuka)
-                        if (typeof showToast === "function") {
-                            showToast("Error", msg, "error");
-                        }
-                    }
-                } catch (error) {
-                    console.error("Form AJAX Submit Error:", error);
-                    if (typeof showToast === "function") {
-                        showToast("System Error", "Gagal mengirim data ke server. Periksa koneksi Anda.", "error");
-                    }
-                }
-            });
-        }
         
         // Pemuatan data skeleton pertama kali saat halaman berhasil dibuka penuh
         fetchProjects();
     });
-//
+
         // Build a project card element
     function buildProjectCardElement(item) {
         const project = item.fields;
@@ -313,7 +251,13 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const addProjectModal = document.getElementById("add-project-modal");
-        const projectForm = document.getElementById('add-project-form'); // Disesuaikan dengan ID HTML form modal kamu
+        const projectForm = document.getElementById('add-project-form') || document.querySelector('.project-form');
+
+        if (projectForm) {
+            console.log("Form ditemukan!", projectForm);
+        } else {
+            console.error("Form TIDAK ditemukan! Periksa ID atau Class form di HTML Anda.");
+        }
 
         if (searchInput) {
             searchInput.addEventListener("input", () => {
@@ -349,27 +293,42 @@
             }
 
             try {
-                // Menggunakan endpoint URL add_project_ajax yang valid dari view kamu
                 const response = await fetch("{% url 'main:add_project_ajax' %}", {
                     method: 'POST',
                     headers: { 'X-CSRFToken': getCsrfToken() },
                     body: new FormData(projectForm),
                 });
+        
                 const result = await response.json().catch(() => ({}));
 
                 if (response.ok || response.status === 201) {
                     projectForm.reset();
-                    closeProjectModal();
-                    showToast('Success', result.message || 'New project added successfully!', 'success');
-                    fetchProjects(searchInput && searchInput.value ? searchInput.value.trim() : "");
+                    if (typeof closeProjectModal === "function"){
+                        closeProjectModal();
+                    }
+
+                    if (typeof showToast === "function") {
+                        showToast('Success', result.message || 'New project added successfully!', 'success');
+                    }
+
+                    setTimeout(() => {
+                        if (typeof fetchProjects === "function") {
+                            fetchProjects(searchInput && searchInput.value ? searchInput.value.trim() : "");
+                        }
+                    }, 300);
+
                 } else {
-                    // Penyesuaian ekstraksi pesan error validasi ModelForm Django gundal
+                    // DEBUG 3: Jika gagal validasi form (Status 400) atau akses ditolak (Status 403)
+                    alert("GAGAL (Blok Else)! Isi data errors: " + JSON.stringify(result));
+            
                     const errorMessages = result.errors
                         ? Object.values(result.errors).flat().map(error => typeof error === 'object' ? error.message : error)
                         : [result.error || result.message || `Something went wrong (status ${response.status}).`];
                     showToast('Failed to add project', errorMessages.join(' '), 'error');
                 }
             } catch (error) {
+                // DEBUG 4: Jika terjadi error fatal pada JavaScript atau koneksi putus
+                alert("CRASH (Blok Catch)! Error detail: " + error.message);
                 console.error('Error adding project:', error);
                 showToast('Failed to add project', 'Could not reach the server. Please try again.', 'error');
             } finally {

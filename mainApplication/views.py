@@ -265,8 +265,6 @@ def add_project_ajax(request):
     if form.is_valid():
         project = form.save()
         
-        messages.success(request, "Project added successfully!")
-        
         return JsonResponse({
             "message": "Proyek berhasil ditambahkan!",
             "project": {
