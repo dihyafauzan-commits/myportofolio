@@ -46,5 +46,44 @@
                 </p>
             </div>
         </section>
+        <section class="contacts-section" id="contacts" style="margin-top: 40px;">
+            <div class="container" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                <!-- Script HTMX ditaruh di sini karena di file ini tidak ada tag <head> -->
+                <script src="https://jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.min.js"></script>
+
+                <h1>Add Contact</h1>
+                <form hx-post="{% url 'main:contact_add' %}"
+                      hx-target="#contact-rows"
+                      hx-swap="innerHTML"
+                      hx-on::after-request="if (event.detail.successful) this.reset()">
+                  {% csrf_token %}
+                  <input type="text" name="name" placeholder="Name" required>
+                  <input type="email" name="email" placeholder="Email" required>
+                  <button type="submit">Add</button>
+                </form>
+
+                <br><br>
+
+                <div class="search-container">
+                    <input type="search" name="q" placeholder="Search contacts..."
+                           hx-get="{% url 'main:contact_search' %}"
+                           hx-trigger="keyup changed delay:300ms, search"
+                           hx-target="#contact-rows"
+                           hx-indicator="#search-indicator">
+                    <span id="search-indicator" class="htmx-indicator" style="margin-left: 10px; color: gray;">Searching...</span>
+                </div>
+
+                <br>
+
+                <h2>Contact List</h2>
+                <table>
+                    <thead>
+                        <tr><th>Name</th><th>Email</th><th></th></tr></thead>
+                    <tbody id="contact-rows">
+                        {% include "_contact_rows.html" %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
     {% endblock content %}
