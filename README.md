@@ -14,25 +14,69 @@ Class	: PBP KKI
 AI disclosure
     I use Gemini AI to guide me on this assignment. I mostly use it to help me adding a background colour and manage the spacing above and below the About me section as well as helping how to create a new section on my website. Other than that, the website is created based on the orders from the previous tutorials.
 
-### Assignment 2
-
+## Assignment 2
 Reflective Questions
-1.  When a user send a request from their browser the first thing that happen is the request gets fetched by urls.py which is the project, and then urls.py would read the first part of the URL address, then using the function path("",include(mainApplication.urls")) the request would then be passed to the internal route file of the application.
-After that the file would then receive an operand route and check the rest of the URL address, which would call those specific data processing function inside the view file.
-Then the View file would ask for the data that are needed for the Model, after the Model gave the data that it needed to the database, View would wrapped the data into a dictionary named context, and then it will call the Template HTML to be rendered.
-The Model here acts as the bridge between python and the database. When getting asked by View, Model would translate the code from python to become a query SQL that can retrieve data and project from the database, and then give it to View in the form of a Python code.
-Lastly the Template is the one that receive the data from View in the form of Context, combining those data into the HTML frame and producing a static HTML file that is send back to the browser of the user.
 
-2. Through the aspect of Application maintenance, the use of Model helps us adding or changing the data instantly without touching the program code, completely bypasing the need to use git add, commit, and push, making the future edit on the page much easier and safer.
+When a user send a request from their browser the first thing that happen is the request gets fetched by urls.py which is the project, and then urls.py would read the first part of the URL address, then using the function path("",include(mainApplication.urls")) the request would then be passed to the internal route file of the application. After that the file would then receive an operand route and check the rest of the URL address, which would call those specific data processing function inside the view file. Then the View file would ask for the data that are needed for the Model, after the Model gave the data that it needed to the database, View would wrapped the data into a dictionary named context, and then it will call the Template HTML to be rendered. The Model here acts as the bridge between python and the database. When getting asked by View, Model would translate the code from python to become a query SQL that can retrieve data and project from the database, and then give it to View in the form of a Python code. Lastly the Template is the one that receive the data from View in the form of Context, combining those data into the HTML frame and producing a static HTML file that is send back to the browser of the user.
+
+Through the aspect of Application maintenance, the use of Model helps us adding or changing the data instantly without touching the program code, completely bypasing the need to use git add, commit, and push, making the future edit on the page much easier and safer.
 
 For Future Development, the data that is kept inside the Model are flexible and reusable, therefore if in the future there were to be a situation that needed the similar feature, they can easily edit a few part of it rather than creating a code that woks in similar fashion from scratch.
 
-3. makemigrations serve as a bluprint for the migrate action, it is tasked to scan models.py to see if there are any changes, if there is Django would create a new instruction file inside the migrations/ folder. This action wouldn't affect the database since it only note for the plans of changing in a python text file.
-
+makemigrations serve as a bluprint for the migrate action, it is tasked to scan models.py to see if there are any changes, if there is Django would create a new instruction file inside the migrations/ folder. This action wouldn't affect the database since it only note for the plans of changing in a python text file.
 migrate would then execute those plans, it would read the instruction files inside migrations/ and execute the instruction that has never been runned, which would affect the database.
 
 As an example, in my program inside models.py i wrote "score = models.IntegerField(blank=True, null=True)" which i needed to run makemigrations so Django could detect the change and write a file to plan for migrate, and then after i run migrate, Django now can create a column titled score inside the database table. Withouse both of these action, the aplication would experience OperationalError when trying to store the scores data.
 
+AI disclosure: I use Gemini AI to help with editing the new page titled "certificate" where it would showcase pictures of my real life certificates. By copying the template on tutorial 2, i make some edit to fit my picture for this page such as adding the feature to add and show the image on the page and in here is where i use the AI to help me tackle some mistakes and errors. And also when opening the site through PWS there are some troubleshooting needed to be done since the application i created used a python app called Pillow and Gemini gave me some tips and the method so that the app can run on PWS.
 
-AI disclosure:
-	I use Gemini AI to help with editing the new page titled "certificate" where it would showcase pictures of my real life certificates. By copying the template on tutorial 2, i make some edit to fit my picture for this page such as adding the feature to add and show the image on the page and in here is where i use the AI to help me tackle some mistakes and errors. And also when opening the site through PWS there are some troubleshooting needed to be done since the application i created used a python app called Pillow and Gemini gave me some tips and the method so that the app can run on PWS.
+## Assignment 3
+1.
+
+2.
+
+3.
+
+AI disclosure
+
+## Assignment 4
+AI disclosure: I use Gemini AI , to assist me with the Role management & access control checklist. Since in the assignment it doesn't tell exactly how to create the group through the Django admin, i ask Gemini on how to create it, which i later discover by running the server and add /admin next to the main url.
+
+## Assignment 5
+1.  Debouncing is a program optimalization technique that delays a function execution until the user stops an activity for a few milisecond. While using AJAX, everytime
+    the user presses a keyboard button, JavaScript will automatically send a request to the server, which if there were to be a hundred or even thousands of users will cause a crash or slow down the Django server. Hence the debouncing technique is used to prevent leaked performance due to many unnecessary AJAX request. 
+
+2.  The await function is a function that is used to momentarily stopped JavaScript's code execution until the next asynchronous process, such as retrieving data from
+    the server using fetch() is done and then returning a valid response.
+
+    If the await function were not to be used, it will cause an undefined/promise pending error due to the fetch() needed time to fetch the data from the server and then returning with the data, and it will also cause the application to get jammed, because the variable that's supposed to contain the JSON data from the server only to be given a "Promise { <pending> }" object, that'll eventualy lead it to crash.
+
+3.  Cross-Site Scripting is a type of cyber attack which the perpetrator manage to sneak in a dangerous scripted code inside the web application. These script will
+    then be automatically executed inside the browser of another user that opened the web.
+
+    AJAX/JavaScript is more vulnerable to Cross-Site Scripting attack due to it not having a built in security system as high leveled as Django. When printing a variable directly on the HTML using the syntax {{ project.title }}, Django would automatically change a specific character such as "<" into "&lt;" and ">" into "&gt;". The browser will see it as an ordinary text, and not an order.
+
+    While AJAX/JavaScript use the innerHTML directly. The innerHTML property will tell the browser to execute a text program as a real HTML code. If the data from the JSON contains the tag "<img>" with an error function "onerror="dangerous_script"", the browser will execute the attack without knowing what it had just done.
+
+## Assignment 6
+
+1.  REST(Representational State Transfer) is a software architecture that's based on the stateless and the use of HTTP protocol to transfer a represent of a resource
+    REST treat every entity as a resource that can be identified with unique URL.
+
+    JSON is a data exchange format, when we send a data using JSON format it doesn't automatically turned the API into RESTful due to it not following the REST architecture principle such as Uniform Interface, which is using HTTP method as what it's meant to do (GET for reading and POST to create, etc). If an API use POST but returns the data in JSON format it's not RESTful.
+
+    The difference between PUT and PATCH is that, PUT is used to replace the entire data from a resource, while PATCH is used to replace a part of the data.
+
+2.  Serializer acts as a two-way bridge that turns a complex object into a Python data that is easier to convert into JSON and the other way around.
+
+    The advantage of using serializer compare to JsonResponse, is that it is easier to handle complex relation and computed fields, easier to deserialize data, data is more secured and centralized and automatize data validation.
+
+3.  The difference between authentication and authorization, is that authentication is a proses to determine the user (usually by using log in system) while
+    authorization determine what that user is allowed to do (usually by assigning role or class to the user).
+
+    The reason why authorization has to be checked with permission class on the server rather than only by hiding a button in the template is because a hidden button can be shown through the developer tools in browser and have the ability to do things with the said button, or they can guess what the endpoint of the URL API by using fetch() in the console.Server check is important because it is the final set of defence that cannot be manipulated by ordinary users.
+
+4.  The reason why we still need CSRF is because the browser automatically sends login cookie on every request. Without CSRF token, fake sites can exploit the browser
+    to send command without out knowledge using that same cookie. The CSRF token serve as a proof that the request trully came from our web.
+
+    The reason why force_authenticate is not enough for CSRF test is because the function bypass all security system including CSRF check to functioned faster. Making it unreliable for CSRF defense system.

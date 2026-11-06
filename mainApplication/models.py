@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Experience(models.Model):
@@ -24,6 +25,8 @@ class Experience(models.Model):
     thumbnail = models.URLField(blank=True, null=True)
     started_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(blank=True, null=True)
+    starred_by = models.ManyToManyField(User, related_name="starred_experiences", blank=True)
+
 
     def __str__(self):
         return self.title
@@ -31,3 +34,38 @@ class Experience(models.Model):
     @property
     def is_ongoing(self):
         return self.ended_at is None
+
+class Project(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    tech_stack = models.CharField(max_length=255, blank=True, null=True)
+    project_url = models.URLField(blank=True, null=True)
+    project_image_url = models.URLField(blank=True, null=True, max_length=500)
+    image = models.ImageField(upload_to='projects/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    starred_by = models.ManyToManyField(User, related_name="starred_projects", blank=True)
+
+    @property
+    def total_stars(self):
+        return self.starred_by.count()
+    
+    def __str__(self):
+        return self.title
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name
+
+from django.db import models
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name

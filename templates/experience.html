@@ -1,66 +1,343 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experience - Dihya Fauzan Haryadi</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">Dihya Fauzan Haryadi</a>
-            <nav>
-                <a href="{% url 'main:show_main' %}">Profile</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-    <section class="experience-section" id="experience">
-        <div class="container">
-            <p class="section-kicker">My journey so far</p>
+{% extends 'base.html' %}
+{% block content %}
+<main>
+<section class="experience-section" id="experience">
+    <div class="container">
+        <p class="section-kicker">My journey so far</p>
+        
+        <div class="project-header">
             <h1>Experience</h1>
-
-            <div class="experience-grid">
-                {% for experience in experience_list %}
-                    <article class="experience-card">
-                        <span class="experience-category">
-                            {{ experience.get_category_display }}
-                        </span>
-                        <!-- UBAH DI SINI: Gunakan variabel Django agar judul dinamis -->
-                        <h2>{{ experience.title }}</h2>
-            
-                        <!-- UBAH DI SINI: Gunakan variabel Django agar deskripsi dinamis -->
-                        <p class="experience-description">
-                            {{ experience.description }}
-                        </p>
-
-                        {% if experience.is_ongoing %}
-                            <p class="experience-status">Ongoing</p>
-                        {% else %}
-                            <p class="experience-status">Completed</p>
-                        {% endif %}
-                    </article>
-                {% empty %}
-                    <p class="empty-state">
-                        No experience has been added yet.
-                    </p>
-                {% endfor %}
-            </div>
-
+            <button class="button project-add-button" onclick="document.getElementById('addExperienceModal').showPopover()">
+                <span>+</span> Add Experience
+            </button>
         </div>
-    </section>
+
+        <div class="project-search">
+            <input type="text" id="search-input" class="project-search__input" placeholder="Search experiences by title or description...">
+        </div>
+
+        <div class="experience-grid" id="experience-container">
+        </div>
+
+    </div>
+</section>
 </main>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Dihya-Fauzan-Haryadi. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-        </div>
-    </footer>
-</body>
-</html>
+<div id="addExperienceModal" class="project-form-modal" popover="manual">
+    <div class="project-form-modal__backdrop" onclick="document.getElementById('addExperienceModal').hidePopover()"></div>
+    <div class="project-form-modal__content">
+        <button type="button" class="project-form-modal__close" onclick="document.getElementById('addExperienceModal').hidePopover()">&times;</button>
+        <h2>Add New Experience</h2>
+        
+        <form id="form-add-experience" class="project-form" onsubmit="createExperience(event)">
+            <div class="form-group">
+                <label for="add-title">Title</label>
+                <input type="text" id="add-title" required>
+            </div>
+            <div class="form-group">
+                <label for="add-category">Category</label>
+                <select id="add-category" class="project-search__input" style="width:100%; box-sizing:border-box;">
+                    <option value="internship">Internship</option>
+                    <option value="research">Research</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="part-time">Part-Time</option>
+                    <option value="full-time" selected>Full-Time</option>
+                    <option value="freelance">Freelance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="add-description">Description</label>
+                <textarea id="add-description" rows="3" required></textarea>
+            </div>
+            <div class="project-form-modal__actions">
+                <button type="button" class="button button-secondary" onclick="document.getElementById('addExperienceModal').hidePopover()">Cancel</button>
+                <button type="submit" class="button">Save Experience</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editExperienceModal" class="project-form-modal" popover="manual">
+    <div class="project-form-modal__backdrop" onclick="document.getElementById('editExperienceModal').hidePopover()"></div>
+    <div class="project-form-modal__content">
+        <button type="button" class="project-form-modal__close" onclick="document.getElementById('editExperienceModal').hidePopover()">&times;</button>
+        <h2>Edit Experience</h2>
+        
+        <form id="form-edit-experience" class="project-form" onsubmit="submitEditExperience(event)">
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <label for="edit-title">Title</label>
+                <input type="text" id="edit-title" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-category">Category</label>
+                <select id="edit-category" class="project-search__input" style="width:100%; box-sizing:border-box;">
+                    <option value="internship">Internship</option>
+                    <option value="research">Research</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="part-time">Part-Time</option>
+                    <option value="full-time">Full-Time</option>
+                    <option value="freelance">Freelance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-description">Description</label>
+                <textarea id="edit-description" rows="3" required></textarea>
+            </div>
+            <div class="project-form-modal__actions">
+                <button type="button" class="button button-secondary" onclick="document.getElementById('editExperienceModal').hidePopover()">Cancel</button>
+                <button type="submit" class="button">Update Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'components/toast.html' %}
+
+{% csrf_token %}
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showToast(message, type = "info") {
+    const toastEl = document.getElementById('toast-component');
+    const titleEl = document.getElementById('toast-title');
+    const messageEl = document.getElementById('toast-message');
+    
+    if (toastEl && titleEl && messageEl) {
+        toastEl.classList.remove('toast-success', 'toast-error', 'toast-normal');
+        
+        if (type === "success") {
+            titleEl.innerText = "Success";
+            toastEl.classList.add('toast-success');
+        } else if (type === "danger") {
+            titleEl.innerText = "Error / Rejected";
+            toastEl.classList.add('toast-error');
+        } else {
+            titleEl.innerText = "Notification";
+            toastEl.classList.add('toast-normal');
+        }
+        
+        messageEl.innerText = message;
+        
+        toastEl.showPopover();
+        toastEl.classList.remove('toast-hidden');
+        toastEl.classList.add('toast-show');
+       
+        setTimeout(() => {
+            toastEl.classList.remove('toast-show');
+            toastEl.classList.add('toast-hidden');
+            setTimeout(() => {
+                toastEl.hidePopover();
+            }, 300); 
+        }, 4000);
+    } else {
+        alert(message);
+    }
+}
+
+function renderExperiences(experiences) {
+    const container = document.getElementById('experience-container');
+    container.innerHTML = ""; 
+
+    if (experiences.length === 0) {
+        container.innerHTML = `<p class="empty-state">No experience has been added yet.</p>`;
+        return;
+    }
+
+    experiences.forEach(exp => {
+        const escapedTitle = exp.title.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const escapedDesc = exp.description.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const categoryDisplay = exp.category.charAt(0).toUpperCase() + exp.category.slice(1);
+
+        const cardHtml = `
+            <article class="experience-card" style="padding: 1.5rem;">
+                <div style="margin-bottom: 0.5rem;">
+                    <span class="experience-category" style="font-weight: 700; color: var(--accent); font-size: 0.85rem;">
+                        [${categoryDisplay}]
+                    </span>
+                </div>
+                
+                <h2 style="margin: 0 0 0.5rem 0; font-size: 1.35rem; font-family: 'Space Grotesk', sans-serif;">${escapedTitle}</h2>
+                <p class="experience-description" style="margin-bottom: 1rem; color: var(--ink); flex-grow: 1;">${escapedDesc}</p>
+                
+                <div class="project-card-actions">
+                    <p class="experience-status" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem;">
+                        Status: <span style="color: var(--accent);">${exp.is_ongoing ? 'Ongoing' : 'Completed'}</span>
+                    </p>
+                    
+                    <div class="project-actions" style="border-top: 1px solid var(--line); padding-top: 0.75rem;">
+                        
+                        <!-- Menggunakan class kustom .button-star dan toggle status .is-starred -->
+                        <button class="button-star ${exp.is_starred ? 'is-starred' : ''}" onclick="toggleStarExperience('${exp.id}')">
+                            ⭐ Star <span class="star-count">${exp.star_count}</span>
+                        </button>
+                        
+                        <small style="color: var(--text-muted); font-size: 0.8rem;">By: ${exp.starred_by_names || '-'}</small>
+                        
+                        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                            <button class="button" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; background: #0284c7;" onclick="openEditModal('${exp.id}', '${escapedTitle}', '${escapedDesc}', '${exp.category}')">Edit</button>
+                            <button class="button" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; background: #b42318;" onclick="deleteExperience('${exp.id}')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
+        container.innerHTML += cardHtml;
+    });
+}
+
+function fetchExperiences(searchQuery = "") {
+    const url = `/api/v1/experiences/?search=${encodeURIComponent(searchQuery)}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            renderExperiences(data);
+        })
+        .catch(error => {
+            showToast("Gagal mengambil data dari server.", "danger");
+        });
+}
+
+function createExperience(event) {
+    event.preventDefault();
+    const csrftoken = getCookie('csrftoken');
+    
+    const payload = {
+        title: document.getElementById('add-title').value,
+        description: document.getElementById('add-description').value,
+        category: document.getElementById('add-category').value
+    };
+
+    fetch('/api/v1/experiences/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (response.ok) {
+            showToast("Experience successfully added!", "success");
+            fetchExperiences();
+            document.getElementById('form-add-experience').reset();
+            bootstrap.Modal.getInstance(document.getElementById('addExperienceModal')).hidePopover();
+        } else if (response.status === 400) {
+            showToast(`Validation Error: ${JSON.stringify(data)}`, "danger");
+        } else if (response.status === 403) {
+            showToast("Forbidden: Action rejected for this account role.", "danger");
+        }
+    })
+    .catch(() => showToast("Network error occurred.", "danger"));
+}
+
+function openEditModal(id, title, description, category) {
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-title').value = title;
+    document.getElementById('edit-description').value = description;
+    document.getElementById('edit-category').value = category;
+    
+    const editModal = new bootstrap.Modal(document.getElementById('editExperienceModal').showPopover);
+    editModal.show();
+}
+
+function submitEditExperience(event) {
+    event.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const csrftoken = getCookie('csrftoken');
+    
+    const payload = {
+        title: document.getElementById('edit-title').value,
+        description: document.getElementById('edit-description').value,
+        category: document.getElementById('edit-category').value
+    };
+
+    fetch(`/api/v1/experiences/${id}/`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (response.ok) {
+            showToast("Experience successfully updated!", "success");
+            fetchExperiences();
+            bootstrap.Modal.getInstance(document.getElementById('editExperienceModal')).hidePopover();
+        } else if (response.status === 400) {
+            showToast(`Validation Error: ${JSON.stringify(data)}`, "danger");
+        } else if (response.status === 403) {
+            showToast("Forbidden: Only Editors and Portfolio Owners can perform this action.", "danger");
+        }
+    })
+    .catch(() => showToast("Network error occurred.", "danger"));
+}
+
+function deleteExperience(id) {
+    if (!confirm("Are you sure you want to delete this experience?")) return;
+    const csrftoken = getCookie('csrftoken');
+
+    fetch(`/api/v1/experiences/${id}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => {
+        if (response.status === 204) {
+            showToast("Experience successfully deleted!", "success");
+            fetchExperiences();
+        } else if (response.status === 403) {
+            showToast("Forbidden: Only the Portfolio Owner can delete this data.", "danger");
+        }
+    })
+    .catch(() => showToast("Network error occurred.", "danger"));
+}
+
+// I. TOGGLE STAR OPERATION (POST)
+function toggleStarExperience(id) {
+    const csrftoken = getCookie('csrftoken');
+
+    fetch(`/api/v1/experiences/${id}/star/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(async response => {
+        if (response.ok) {
+            fetchExperiences();
+        } else if (response.status === 403) {
+            showToast("Authentication Required: Please login to star.", "danger");
+        }
+    })
+    .catch(() => showToast("Network error occurred.", "danger"));
+}
+
+document.getElementById('search-input').addEventListener('input', (e) => {
+    fetchExperiences(e.target.value);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    fetchExperiences();
+});
+</script>
+{% endblock content %}
