@@ -30,6 +30,7 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
+@login_required(login_url="/login/")
 def show_experience(request):
     context = {
         "name": "Dihya",
